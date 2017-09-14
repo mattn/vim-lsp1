@@ -1,6 +1,5 @@
 function! lsp#api#initialize(root, capabilities)
-  let uri = 'file:///' . tr(a:root, '\', '/')
-  return {"method": "initialize", "params": {"rootUri": uri, "capabilities": a:capabilities}}
+  let root = has('win32') ? ('/' . a:root) : a:root
+  let uri = 'file://' . tr(root, '\', '/')
+  return {"method": "initialize", "params": {"rootPath": uri, "capabilities": a:capabilities}}
 endfunction
-
-

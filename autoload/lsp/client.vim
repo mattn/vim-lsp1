@@ -14,8 +14,17 @@ function! s:out_cb(client, ch, msg) abort
       endif
     endfor
     let pos = len(token[0])
-    let body = a:client.text[pos: pos+cl-1]
-    echomsg string(json_decode(body))
+    let json = a:client.text[pos: pos+cl-1]
+    let obj = json_decode(json)
+    echo obj
+    if has_key(obj, 'id') && has_key(a:client.cb, obj.id)
+      try
+        call call(a:client.cb[obj.id], [a:client, obj])
+      catch
+      finally
+        call remove(a:client.cb, obj.id)
+      endtry
+    endif
     let a:client.text = a:client.text[pos+cl:]
   endwhile
 endfunction
@@ -29,10 +38,12 @@ let s:client = {
 \ 'job': v:none,
 \ 'ch': v:none,
 \ 'rest': '',
+\ 'root': '',
+\ 'cb': {},
 \}
 
-function! lsp#client#create() abort
-  let job = job_start(['go-langserver', '-trace', '-logfile', 'foo.log'])
+function! lsp#client#create(opts) abort
+  let job = job_start(a:opts.cmd)
   let ch = job_getchannel(job)
 
   let client = deepcopy(s:client)
@@ -47,8 +58,12 @@ function! lsp#client#create() abort
   return client
 endfunction
 
-function! s:client.send(req) abort
+function! s:client.send(req, ...) abort
+  let X = get(a:000, 0, v:none)
   let self.id += 1
+  if type(X) != type(v:none)
+    let self.cb[self.id] = X
+  endif
   let req = deepcopy(a:req)
   let req.id = self.id
   let req.jsonrpc = 2.0
