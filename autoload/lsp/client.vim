@@ -1,8 +1,27 @@
-function! s:out_cb(ch, msg)
-  echomsg a:msg
+function! s:out_cb(client, ch, msg)
+  let text = a:client.rest . a:msg
+  while !empty(text)
+    let token = matchlist(text, '^\_.\{-}\r\?\n\r\?\n')
+    if len(token) == 0
+      let s:client = text
+	  return
+    endif
+    let cl = -1
+    for l in split(token[0], '\r?\n')
+      let header = matchlist(l, '^Content-Length:\s\([0-9]\+\)')
+      if len(header)
+        let cl = header[1]
+        break
+      endif
+    endfor
+    let pos = len(token[0])
+    let body = text[pos: pos+cl-1]
+    let text = text[pos+cl:]
+    echomsg body
+  endwhile
 endfunction
 
-function! s:err_cb(ch, msg)
+function! s:err_cb(client, ch, msg)
   "echomsg a:msg
 endfunction
 
@@ -10,18 +29,21 @@ let s:client = {
 \ 'id': 0,
 \ 'job': v:none,
 \ 'ch': v:none,
+\ 'rest': '',
 \}
 
 function! lsp#client#create()
-  let job = job_start('go-langserver')
+  let job = job_start(['go-langserver', '-trace', '-logfile', 'foo.log'])
   let ch = job_getchannel(job)
-  call ch_setoptions(ch, {
-  \ 'out_cb': function('s:out_cb'),
-  \ 'err_cb': function('s:err_cb'),
-  \ 'mode': 'raw',
-  \})
+
   let client = deepcopy(s:client)
   let client.job = job
+
+  call ch_setoptions(ch, {
+  \ 'out_cb': function('s:out_cb', [client]),
+  \ 'err_cb': function('s:err_cb', [client]),
+  \ 'mode': 'raw',
+  \})
   let client.ch = ch
   return client
 endfunction
@@ -32,7 +54,6 @@ function! s:client.send(req)
   let req.id = self.id
   let req.jsonrpc = 2.0
   let json = json_encode(req)
-  let payload = printf("content-type: %d\r\n\r\n%s", len(json), json)
-  let g:hoge = payload
+  let payload = printf("Content-Length: %d\r\n\r\n%s", len(json), json)
   call ch_sendraw(self.ch, payload)
 endfunction
