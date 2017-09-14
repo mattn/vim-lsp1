@@ -1,0 +1,13 @@
+Content-Length: 114
+
+{"jsonrpc": 2.0, "method": "initialize", "params": {"rootUri": "file:///c:/dev/go-sandbox/", "capabilities": {}}}
+
+Content-Length: 87
+
+{"jsonrpc": 2.0, "method": "textDocument/didOpen", "params": {"uri": "file:///foo.go"}}
+
+Content-Length: 68
+
+{"jsonrpc": 2.0, "method": "textDocument/references", "params": {}}
+
+
