@@ -1,6 +1,6 @@
 function! lsp#api#textDocument#didOpen(file)
   let uri = 'file://' . tr(a:file, '\', '/')
-  let content = join(readfile(a:file), "\n")
+  let content = join(readfile(a:file, 1), "\n")
   return {"method": "textDocument/didOpen", "params": {"textDocument":{"uri": uri, "text": content}}}
 endfunction
 
@@ -8,7 +8,7 @@ function! lsp#api#textDocument#references()
   return {"method": "textDocument/references", "params": {}}
 endfunction
 
-function! lsp#api#textDocument#hover(file)
+function! lsp#api#textDocument#hover(file, position)
   let uri = 'file://' . tr(a:file, '\', '/')
-  return {"method": "textDocument/hover", "params": {"textDocument": {"uri": uri}, "position": {"line": 1, "characters": 1}}}
+  return {"method": "textDocument/hover", "params": {"textDocument": {"uri": uri}, "position": a:position}}
 endfunction
