@@ -1,5 +1,6 @@
-function! lsp#api#initialize(rootUri, capabilities)
-  return {"method": "initialize", "params": {"rootUri": a:rootUri, "capabilities": a:capabilities}}
+function! lsp#api#initialize(root, capabilities)
+  let uri = 'file:///' . tr(a:root, '\', '/')
+  return {"method": "initialize", "params": {"rootUri": uri, "capabilities": a:capabilities}}
 endfunction
 
 
