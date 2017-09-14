@@ -1,4 +1,4 @@
-function! s:out_cb(client, ch, msg)
+function! s:out_cb(client, ch, msg) abort
   let text = a:client.rest . a:msg
   while !empty(text)
     let token = matchlist(text, '^\_.\{-}\r\?\n\r\?\n')
@@ -21,8 +21,8 @@ function! s:out_cb(client, ch, msg)
   endwhile
 endfunction
 
-function! s:err_cb(client, ch, msg)
-  "echomsg a:msg
+function! s:err_cb(client, ch, msg) abort
+  echomsg a:msg
 endfunction
 
 let s:client = {
@@ -32,7 +32,7 @@ let s:client = {
 \ 'rest': '',
 \}
 
-function! lsp#client#create()
+function! lsp#client#create() abort
   let job = job_start(['go-langserver', '-trace', '-logfile', 'foo.log'])
   let ch = job_getchannel(job)
 
@@ -48,7 +48,7 @@ function! lsp#client#create()
   return client
 endfunction
 
-function! s:client.send(req)
+function! s:client.send(req) abort
   let self.id += 1
   let req = deepcopy(a:req)
   let req.id = self.id
