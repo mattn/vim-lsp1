@@ -1,9 +1,8 @@
 function! s:out_cb(client, ch, msg) abort
-  let text = a:client.rest . a:msg
-  while !empty(text)
-    let token = matchlist(text, '^\_.\{-}\r\?\n\r\?\n')
+  let a:client.text = a:client.rest . a:msg
+  while !empty(a:client.text)
+    let token = matchlist(a:client.text, '^\_.\{-}\r\?\n\r\?\n')
     if len(token) == 0
-      let s:client = text
 	  return
     endif
     let cl = -1
@@ -15,9 +14,9 @@ function! s:out_cb(client, ch, msg) abort
       endif
     endfor
     let pos = len(token[0])
-    let body = text[pos: pos+cl-1]
+    let body = a:client.text[pos: pos+cl-1]
     echomsg string(json_decode(body))
-    let text = text[pos+cl:]
+    let a:client.text = a:client.text[pos+cl:]
   endwhile
 endfunction
 
