@@ -16,8 +16,8 @@ function! s:out_cb(client, ch, msg) abort
     endfor
     let pos = len(token[0])
     let body = text[pos: pos+cl-1]
+    echomsg string(json_decode(body))
     let text = text[pos+cl:]
-    echomsg body
   endwhile
 endfunction
 
