@@ -40,6 +40,7 @@ function! lsp#open(ft, file) abort
     let s:client = lsp#client#create(opts)
 	let s:client.root = getcwd()
     call s:client.send(lsp#api#initialize(s:client.root, {}))
+    sleep 1
   endif
   call s:client.send(lsp#api#textDocument#didOpen(s:fspath(a:file)))
   command! -buffer LspHover call lsp#hover()
