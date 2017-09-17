@@ -33,6 +33,7 @@ function! lsp#enable() abort
     endif
     let s:enabled = 1
     call s:register_events()
+    setlocal ballooneval balloonexpr=lsp#ui#vim#balloon()
 endfunction
 
 function! lsp#disable() abort
@@ -518,7 +519,7 @@ function! lsp#get_text_document_identifier(...) abort
 endfunction
 
 function! lsp#get_position(...) abort
-    return { 'line': line('.') - 1, 'character': col('.') -1 }
+    return { 'line': line('.') - 1, 'character': col('.') - 1 }
 endfunction
 
 function! s:get_text_document_identifier(buf, buffer_info) abort
